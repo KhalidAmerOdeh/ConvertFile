@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحويل الملفات | File Converter</title>
     <style>
-        /* أنماط CSS */
+        /* أنماط CSS كما هي */
         body {
             font-family: Arial, sans-serif;
             background-color: #4a4a4a;
@@ -17,11 +17,6 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.light-mode {
-            background-color: #f4f4f4;
-            color: #333;
         }
         header {
             background: #333;
@@ -33,10 +28,6 @@
             top: 0;
             left: 0;
             z-index: 1000;
-            transition: background 0.3s;
-        }
-        body.light-mode header {
-            background: #f4f4f4;
         }
         header nav {
             display: flex;
@@ -51,9 +42,6 @@
             border-radius: 5px;
             transition: background 0.3s;
         }
-        body.light-mode header nav a {
-            color: #333;
-        }
         header nav a:hover {
             background: rgba(255, 255, 255, 0.1);
         }
@@ -67,11 +55,6 @@
             width: 100%;
             margin-top: 80px;
             color: #fff;
-            transition: background 0.3s, color 0.3s;
-        }
-        body.light-mode .container {
-            background: #fff;
-            color: #333;
         }
         h1 {
             font-size: 24px;
@@ -88,11 +71,6 @@
             border-radius: 5px;
             background-color: #444;
             color: #fff;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.light-mode .language-select select {
-            background-color: #f4f4f4;
-            color: #333;
         }
         .upload-section {
             margin-bottom: 20px;
@@ -119,11 +97,6 @@
             width: 100%;
             background-color: #444;
             color: #fff;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.light-mode .format-select select {
-            background-color: #f4f4f4;
-            color: #333;
         }
         .convert-btn {
             background: #28a745;
@@ -178,11 +151,6 @@
             border-radius: 10px;
             text-align: center;
             margin-top: 20px;
-            transition: background 0.3s, color 0.3s;
-        }
-        body.light-mode .permission-dialog {
-            background: #f4f4f4;
-            color: #333;
         }
         .permission-dialog button {
             margin: 10px;
@@ -214,35 +182,9 @@
                 padding: 8px 16px;
             }
         }
-
-        /* زر التبديل بين الوضع الليلي والنهاري */
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: background 0.3s, color 0.3s;
-        }
-        body.light-mode .theme-toggle {
-            background: #f4f4f4;
-            color: #333;
-        }
     </style>
 </head>
 <body>
-    <!-- زر التبديل بين الوضع الليلي والنهاري -->
-    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-
     <header>
         <nav>
             <a href="#" onclick="showPage('home')" id="homeLink">الصفحة الرئيسية</a>
@@ -659,20 +601,6 @@
                 formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
             }
         });
-
-        // التبديل بين الوضع الليلي والنهاري
-        function toggleTheme() {
-            const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
-
-            if (body.classList.contains('light-mode')) {
-                body.classList.remove('light-mode');
-                themeToggle.textContent = '🌙'; // تغيير الأيقونة إلى القمر
-            } else {
-                body.classList.add('light-mode');
-                themeToggle.textContent = '☀️'; // تغيير الأيقونة إلى الشمس
-            }
-        }
     </script>
 </body>
 </html>
