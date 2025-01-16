@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحويل الملفات | File Converter</title>
+    <style>
+        /* أنماط CSS كما هي */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #4a4a4a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        header {
+            background: #333;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        header nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        header nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        header nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .container {
+            background: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin-top: 80px;
+            color: #fff;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #F4A900;
+        }
+        .language-select {
+            margin-bottom: 20px;
+        }
+        .language-select select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #444;
+            color: #fff;
+        }
+        .upload-section {
+            margin-bottom: 20px;
+        }
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        .upload-section label {
+            background: #F4A900;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .format-select {
+            margin-bottom: 20px;
+        }
+        .format-select select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            width: 100%;
+            background-color: #444;
+            color: #fff;
+        }
+        .convert-btn {
+            background: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .convert-btn:hover {
+            background: #218838;
+        }
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+            color: #F4A900;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        #previewImage {
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        #previewVideo {
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+        }
+        a {
+            color: #F4A900;
+        }
+        .upload-success {
+            display: none;
+            margin-top: 10px;
+            color: #28a745;
+            font-size: 14px;
+        }
+        .permission-dialog {
+            display: none;
+            background: #444;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .permission-dialog button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .permission-dialog button.allow {
+            background: #28a745;
+            color: #fff;
+        }
+        .permission-dialog button.deny {
+            background: #dc3545;
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .upload-section label {
+                padding: 8px 16px;
+            }
+            .convert-btn {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#" onclick="showPage('home')" id="homeLink">الصفحة الرئيسية</a>
+            <a href="#" onclick="showPage('privacy')" id="privacyLink">سياسة الخصوصية</a>
+            <a href="#" onclick="showPage('contact')" id="contactLink">الاتصال</a>
+        </nav>
+    </header>
+
+    <!-- الصفحة الرئيسية -->
+    <div id="home" class="container page-content active">
+        <h1 id="title">تحويل الملفات إلى صيغ مختلفة</h1>
+        <div class="language-select">
+            <select id="languageSelect" onchange="changeLanguage()">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="zh">中文 (الصينية)</option>
+                <option value="hi">हिन्दी (الهندية)</option>
+                <option value="ru">Русский (الروسية)</option>
+                <option value="pt">Português (البرتغالية)</option>
+                <option value="ja">日本語 (اليابانية)</option>
+            </select>
+        </div>
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept="image/*,video/*">
+            <label for="fileInput" id="uploadLabel" onclick="handleFileInput()">اختر ملف</label>
+        </div>
+        <div class="format-select">
+            <select id="formatSelect">
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+                <option value="gif">GIF</option>
+                <option value="bmp">BMP</option>
+                <option value="tiff">TIFF</option>
+                <option value="svg">SVG</option>
+                <option value="ico">ICO</option>
+                <option value="heic">HEIC</option>
+                <option value="avif">AVIF</option>
+                <option value="mp4" class="video-format">MP4</option>
+                <option value="avi" class="video-format">AVI</option>
+                <option value="mov" class="video-format">MOV</option>
+                <option value="mkv" class="video-format">MKV</option>
+                <option value="webm" class="video-format">WebM</option>
+            </select>
+        </div>
+        <button class="convert-btn" onclick="convertFile()" id="convertBtn">تحويل الملف</button>
+        <div id="uploadSuccess" class="upload-success">تم تحميل الملف بنجاح!</div>
+        <a id="downloadLink">تحميل الملف المحول</a>
+        <img id="previewImage" src="" alt="الملف المحول" style="display: none;">
+        <video id="previewVideo" controls style="display: none;"></video>
+        <div id="permissionDialog" class="permission-dialog">
+            <p id="permissionText">السماح بالوصول إلى معرض الملفات؟</p>
+            <button class="allow" onclick="allowPermission()" id="allowBtn">سماح</button>
+            <button class="deny" onclick="denyPermission()" id="denyBtn">تراجع</button>
+        </div>
+    </div>
+
+    <!-- صفحة سياسة الخصوصية -->
+    <div id="privacy" class="container page-content">
+        <h1 id="privacyTitle">سياسة الخصوصية</h1>
+        <p id="privacyText">
+            نحن نحترم خصوصيتك. لا نقوم بتخزين أو مشاركة أي بيانات شخصية. حتى إذا سمحت بالوصول إلى معرض الملفات، فإننا لا نجمع أو نخزن أي معلومات.
+        </p>
+    </div>
+
+    <!-- صفحة الاتصال -->
+    <div id="contact" class="container page-content">
+        <h1 id="contactTitle">الاتصال</h1>
+        <p id="contactText">يمكنك التواصل معنا عبر البريد الإلكتروني: <a href="mailto:khalid.amer.odeh1@gmail.com" style="color: #F4A900;">khalid.amer.odeh1@gmail.com</a></p>
+    </div>
+
+    <script>
+        // الترجمات متعددة اللغات
+        const translations = {
+            ar: {
+                title: "تحويل الملفات إلى صيغ مختلفة",
+                uploadLabel: "اختر ملف",
+                convertBtn: "تحويل الملف",
+                downloadLink: "تحميل الملف المحول",
+                alertMessage: "الرجاء اختيار ملف أولاً.",
+                homeLink: "الصفحة الرئيسية",
+                privacyLink: "سياسة الخصوصية",
+                contactLink: "الاتصال",
+                privacyTitle: "سياسة الخصوصية",
+                privacyText: "نحن نحترم خصوصيتك. لا نقوم بتخزين أو مشاركة أي بيانات شخصية. حتى إذا سمحت بالوصول إلى معرض الملفات، فإننا لا نجمع أو نخزن أي معلومات.",
+                contactTitle: "الاتصال",
+                contactText: "يمكنك التواصل معنا عبر البريد الإلكتروني: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "تم تحميل الملف بنجاح!",
+                permissionText: "السماح بالوصول إلى معرض الملفات؟",
+                allowBtn: "سماح",
+                denyBtn: "تراجع"
+            },
+            en: {
+                title: "Convert Files to Different Formats",
+                uploadLabel: "Choose File",
+                convertBtn: "Convert File",
+                downloadLink: "Download Converted File",
+                alertMessage: "Please select a file first.",
+                homeLink: "Home",
+                privacyLink: "Privacy Policy",
+                contactLink: "Contact",
+                privacyTitle: "Privacy Policy",
+                privacyText: "We respect your privacy. We do not store or share any personal data. Even if you grant access to the file gallery, we do not collect or store any information.",
+                contactTitle: "Contact",
+                contactText: "You can contact us via email: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "File uploaded successfully!",
+                permissionText: "Allow access to file gallery?",
+                allowBtn: "Allow",
+                denyBtn: "Deny"
+            },
+            fr: {
+                title: "Convertir des fichiers en différents formats",
+                uploadLabel: "Choisir un fichier",
+                convertBtn: "Convertir le fichier",
+                downloadLink: "Télécharger le fichier converti",
+                alertMessage: "Veuillez d'abord sélectionner un fichier.",
+                homeLink: "Accueil",
+                privacyLink: "Politique de confidentialité",
+                contactLink: "Contact",
+                privacyTitle: "Politique de confidentialité",
+                privacyText: "Nous respectons votre vie privée. Nous ne stockons ni ne partageons aucune donnée personnelle. Même si vous autorisez l'accès à la galerie de fichiers, nous ne collectons ni ne stockons aucune information.",
+                contactTitle: "Contact",
+                contactText: "Vous pouvez nous contacter par e-mail : <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Fichier téléchargé avec succès !",
+                permissionText: "Autoriser l'accès à la galerie de fichiers ?",
+                allowBtn: "Autoriser",
+                denyBtn: "Refuser"
+            },
+            es: {
+                title: "Convertir archivos a diferentes formatos",
+                uploadLabel: "Elegir archivo",
+                convertBtn: "Convertir archivo",
+                downloadLink: "Descargar archivo convertido",
+                alertMessage: "Por favor, seleccione un archivo primero.",
+                homeLink: "Inicio",
+                privacyLink: "Política de privacidad",
+                contactLink: "Contacto",
+                privacyTitle: "Política de privacidad",
+                privacyText: "Respetamos su privacidad. No almacenamos ni compartimos ningún dato personal. Incluso si permite el acceso a la galería de archivos, no recopilamos ni almacenamos ninguna información.",
+                contactTitle: "Contacto",
+                contactText: "Puede contactarnos por correo electrónico: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "¡Archivo subido con éxito!",
+                permissionText: "¿Permitir acceso a la galería de archivos?",
+                allowBtn: "Permitir",
+                denyBtn: "Rechazar"
+            },
+            de: {
+                title: "Dateien in verschiedene Formate konvertieren",
+                uploadLabel: "Datei auswählen",
+                convertBtn: "Datei konvertieren",
+                downloadLink: "Konvertierte Datei herunterladen",
+                alertMessage: "Bitte wählen Sie zuerst eine Datei aus.",
+                homeLink: "Startseite",
+                privacyLink: "Datenschutzrichtlinie",
+                contactLink: "Kontakt",
+                privacyTitle: "Datenschutzrichtlinie",
+                privacyText: "Wir respektieren Ihre Privatsphäre. Wir speichern oder teilen keine persönlichen Daten. Selbst wenn Sie den Zugriff auf die Dateigalerie erlauben, sammeln oder speichern wir keine Informationen.",
+                contactTitle: "Kontakt",
+                contactText: "Sie können uns per E-Mail kontaktieren: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Datei erfolgreich hochgeladen!",
+                permissionText: "Zugriff auf die Dateigalerie erlauben?",
+                allowBtn: "Erlauben",
+                denyBtn: "Ablehnen"
+            },
+            zh: {
+                title: "将文件转换为不同格式",
+                uploadLabel: "选择文件",
+                convertBtn: "转换文件",
+                downloadLink: "下载转换后的文件",
+                alertMessage: "请先选择一个文件。",
+                homeLink: "首页",
+                privacyLink: "隐私政策",
+                contactLink: "联系我们",
+                privacyTitle: "隐私政策",
+                privacyText: "我们尊重您的隐私。我们不存储或共享任何个人数据。即使您允许访问文件库，我们也不会收集或存储任何信息。",
+                contactTitle: "联系我们",
+                contactText: "您可以通过电子邮件联系我们：<a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "文件上传成功！",
+                permissionText: "允许访问文件库吗？",
+                allowBtn: "允许",
+                denyBtn: "拒绝"
+            },
+            hi: {
+                title: "फ़ाइलों को विभिन्न प्रारूपों में बदलें",
+                uploadLabel: "फ़ाइल चुनें",
+                convertBtn: "फ़ाइल बदलें",
+                downloadLink: "परिवर्तित फ़ाइल डाउनलोड करें",
+                alertMessage: "कृपया पहले एक फ़ाइल चुनें।",
+                homeLink: "होम",
+                privacyLink: "गोपनीयता नीति",
+                contactLink: "संपर्क करें",
+                privacyTitle: "गोपनीयता नीति",
+                privacyText: "हम आपकी गोपनीयता का सम्मान करते हैं। हम कोई व्यक्तिगत डेटा संग्रहीत या साझा नहीं करते हैं। यहां तक कि यदि आप फ़ाइल गैलरी तक पहुंच की अनुमति देते हैं, तो हम कोई जानकारी एकत्र या संग्रहीत नहीं करते हैं।",
+                contactTitle: "संपर्क करें",
+                contactText: "आप हमें ईमेल के माध्यम से संपर्क कर सकते हैं: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "फ़ाइल सफलतापूर्वक अपलोड की गई!",
+                permissionText: "फ़ाइल गैलरी तक पहुंच की अनुमति दें?",
+                allowBtn: "अनुमति दें",
+                denyBtn: "अस्वीकार करें"
+            },
+            ru: {
+                title: "Конвертировать файлы в разные форматы",
+                uploadLabel: "Выбрать файл",
+                convertBtn: "Конвертировать файл",
+                downloadLink: "Скачать конвертированный файл",
+                alertMessage: "Пожалуйста, сначала выберите файл.",
+                homeLink: "Главная",
+                privacyLink: "Политика конфиденциальности",
+                contactLink: "Контакты",
+                privacyTitle: "Политика конфиденциальности",
+                privacyText: "Мы уважаем вашу конфиденциальность. Мы не храним и не передаем личные данные. Даже если вы разрешите доступ к галерее файлов, мы не собираем и не храним никакой информации.",
+                contactTitle: "Контакты",
+                contactText: "Вы можете связаться с нами по электронной почте: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Файл успешно загружен!",
+                permissionText: "Разрешить доступ к галерее файлов?",
+                allowBtn: "Разрешить",
+                denyBtn: "Отказать"
+            },
+            pt: {
+                title: "Converter arquivos para diferentes formatos",
+                uploadLabel: "Escolher arquivo",
+                convertBtn: "Converter arquivo",
+                downloadLink: "Baixar arquivo convertido",
+                alertMessage: "Por favor, selecione um arquivo primeiro.",
+                homeLink: "Início",
+                privacyLink: "Política de Privacidade",
+                contactLink: "Contato",
+                privacyTitle: "Política de Privacidade",
+                privacyText: "Respeitamos sua privacidade. Não armazenamos nem compartilhamos dados pessoais. Mesmo que você permita o acesso à galeria de arquivos, não coletamos nem armazenamos nenhuma informação.",
+                contactTitle: "Contato",
+                contactText: "Você pode nos contatar por e-mail: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Arquivo enviado com sucesso!",
+                permissionText: "Permitir acesso à galeria de arquivos?",
+                allowBtn: "Permitir",
+                denyBtn: "Recusar"
+            },
+            ja: {
+                title: "ファイルを異なる形式に変換",
+                uploadLabel: "ファイルを選択",
+                convertBtn: "ファイルを変換",
+                downloadLink: "変換されたファイルをダウンロード",
+                alertMessage: "最初にファイルを選択してください。",
+                homeLink: "ホーム",
+                privacyLink: "プライバシーポリシー",
+                contactLink: "お問い合わせ",
+                privacyTitle: "プライバシーポリシー",
+                privacyText: "私たちはあなたのプライバシーを尊重します。個人データを保存または共有することはありません。ファイルギャラリーへのアクセスを許可しても、情報を収集または保存することはありません。",
+                contactTitle: "お問い合わせ",
+                contactText: "メールでお問い合わせください: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "ファイルが正常にアップロードされました！",
+                permissionText: "ファイルギャラリーへのアクセスを許可しますか？",
+                allowBtn: "許可",
+                denyBtn: "拒否"
+            }
+        };
+
+        // تغيير اللغة
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            const trans = translations[lang];
+
+            // تحديث النصوص في الصفحة الرئيسية
+            document.getElementById('title').textContent = trans.title;
+            document.getElementById('uploadLabel').textContent = trans.uploadLabel;
+            document.getElementById('convertBtn').textContent = trans.convertBtn;
+            document.getElementById('downloadLink').textContent = trans.downloadLink;
+
+            // تحديث نصوص الأزرار
+            document.getElementById('homeLink').textContent = trans.homeLink;
+            document.getElementById('privacyLink').textContent = trans.privacyLink;
+            document.getElementById('contactLink').textContent = trans.contactLink;
+
+            // تحديث نصوص صفحة سياسة الخصوصية
+            document.getElementById('privacyTitle').textContent = trans.privacyTitle;
+            document.getElementById('privacyText').innerHTML = trans.privacyText;
+
+            // تحديث نصوص صفحة الاتصال
+            document.getElementById('contactTitle').textContent = trans.contactTitle;
+            document.getElementById('contactText').innerHTML = trans.contactText;
+
+            // تحديث رسالة نجاح التحميل
+            document.getElementById('uploadSuccess').textContent = trans.uploadSuccess;
+
+            // تحديث نصوص شاشة طلب الإذن
+            document.getElementById('permissionText').textContent = trans.permissionText;
+            document.getElementById('allowBtn').textContent = trans.allowBtn;
+            document.getElementById('denyBtn').textContent = trans.denyBtn;
+        }
+
+        // الكشف عن نوع الجهاز
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // التعامل مع زر اختيار الملف
+        function handleFileInput() {
+            if (isMobileDevice()) {
+                // إذا كان الجهاز محمولًا، عرض شاشة طلب الإذن
+                const permissionDialog = document.getElementById('permissionDialog');
+                permissionDialog.style.display = 'block';
+            } else {
+                // إذا كان الجهاز كمبيوتر، فتح مستعرض الملفات مباشرةً
+                document.getElementById('fileInput').click();
+            }
+        }
+
+        // السماح بالإذن
+        function allowPermission() {
+            const permissionDialog = document.getElementById('permissionDialog');
+            permissionDialog.style.display = 'none';
+            document.getElementById('fileInput').click();
+        }
+
+        // رفض الإذن
+        function denyPermission() {
+            const permissionDialog = document.getElementById('permissionDialog');
+            permissionDialog.style.display = 'none';
+            showPage('home');
+        }
+
+        // تحويل الملف
+        function convertFile() {
+            const input = document.getElementById('fileInput');
+            const formatSelect = document.getElementById('formatSelect');
+            const downloadLink = document.getElementById('downloadLink');
+            const previewImage = document.getElementById('previewImage');
+            const previewVideo = document.getElementById('previewVideo');
+            const uploadSuccess = document.getElementById('uploadSuccess');
+            const lang = document.getElementById('languageSelect').value;
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileType = file.type.split('/')[0]; // 'image' أو 'video'
+
+                if (fileType === 'image') {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const img = new Image();
+                        img.src = e.target.result;
+
+                        img.onload = function () {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+
+                            ctx.drawImage(img, 0, 0);
+
+                            const selectedFormat = formatSelect.value;
+                            const mimeType = `image/${selectedFormat}`;
+
+                            canvas.toBlob(function (blob) {
+                                const url = URL.createObjectURL(blob);
+                                downloadLink.href = url;
+                                downloadLink.download = `converted_image.${selectedFormat}`;
+                                downloadLink.style.display = 'block';
+                                previewImage.src = url;
+                                previewImage.style.display = 'block';
+                                previewVideo.style.display = 'none';
+                                uploadSuccess.style.display = 'block';
+                            }, mimeType, 1.0);
+                        };
+                    };
+
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'video') {
+                    const url = URL.createObjectURL(file);
+                    previewVideo.src = url;
+                    previewVideo.style.display = 'block';
+                    previewImage.style.display = 'none';
+                    downloadLink.href = url;
+                    downloadLink.download = `converted_video.${formatSelect.value}`;
+                    downloadLink.style.display = 'block';
+                    uploadSuccess.style.display = 'block';
+                }
+            } else {
+                alert(translations[lang].alertMessage);
+            }
+        }
+
+        // إظهار الصفحة المحددة
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // إخفاء صيغ الفيديو بشكل افتراضي
+        document.querySelectorAll('.video-format').forEach(option => {
+            option.style.display = 'none';
+        });
+
+        // عرض صيغ الفيديو عند اختيار فيديو
+        document.getElementById('fileInput').addEventListener('change', function () {
+            const file = this.files[0];
+            const formatSelect = document.getElementById('formatSelect');
+            const imageFormats = Array.from(formatSelect.options).filter(opt => !opt.classList.contains('video-format'));
+            const videoFormats = Array.from(formatSelect.options).filter(opt => opt.classList.contains('video-format'));
+
+            if (file && file.type.startsWith('video/')) {
+                // إخفاء صيغ الصور وإظهار صيغ الفيديو
+                imageFormats.forEach(opt => opt.style.display = 'none');
+                videoFormats.forEach(opt => opt.style.display = 'block');
+                formatSelect.value = 'mp4'; // تعيين القيمة الافتراضية لصيغة الفيديو
+            } else {
+                // إخفاء صيغ الفيديو وإظهار صيغ الصور
+                videoFormats.forEach(opt => opt.style.display = 'none');
+                imageFormats.forEach(opt => opt.style.display = 'block');
+                formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
+            }
+        });
+    </script>
+</body>
+</html>
