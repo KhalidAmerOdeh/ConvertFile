@@ -240,6 +240,7 @@
         <video id="previewVideo" controls style="display: none;"></video>
         <div id="permissionDialog" class="permission-dialog">
             <p id="permissionText">السماح بالوصول إلى معرض الملفات؟</p>
+            <p id="permissionDescription">سيتم السماح للتطبيق بالوصول إلى معرض الصور لاختيار ملف.</p>
             <button class="allow" onclick="allowPermission()" id="allowBtn">سماح</button>
             <button class="deny" onclick="denyPermission()" id="denyBtn">تراجع</button>
         </div>
@@ -277,6 +278,7 @@
                 contactText: "يمكنك التواصل معنا عبر البريد الإلكتروني: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "تم تحميل الملف بنجاح!",
                 permissionText: "السماح بالوصول إلى معرض الملفات؟",
+                permissionDescription: "سيتم السماح للتطبيق بالوصول إلى معرض الصور لاختيار ملف.",
                 allowBtn: "سماح",
                 denyBtn: "تراجع"
             },
@@ -295,6 +297,7 @@
                 contactText: "You can contact us via email: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "File uploaded successfully!",
                 permissionText: "Allow access to file gallery?",
+                permissionDescription: "The app will be allowed to access the photo gallery to select a file.",
                 allowBtn: "Allow",
                 denyBtn: "Deny"
             },
@@ -313,6 +316,7 @@
                 contactText: "Vous pouvez nous contacter par e-mail : <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "Fichier téléchargé avec succès !",
                 permissionText: "Autoriser l'accès à la galerie de fichiers ?",
+                permissionDescription: "L'application sera autorisée à accéder à la galerie photo pour sélectionner un fichier.",
                 allowBtn: "Autoriser",
                 denyBtn: "Refuser"
             },
@@ -331,6 +335,7 @@
                 contactText: "Puede contactarnos por correo electrónico: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "¡Archivo subido con éxito!",
                 permissionText: "¿Permitir acceso a la galería de archivos?",
+                permissionDescription: "La aplicación podrá acceder a la galería de fotos para seleccionar un archivo.",
                 allowBtn: "Permitir",
                 denyBtn: "Rechazar"
             },
@@ -349,6 +354,7 @@
                 contactText: "Sie können uns per E-Mail kontaktieren: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "Datei erfolgreich hochgeladen!",
                 permissionText: "Zugriff auf die Dateigalerie erlauben?",
+                permissionDescription: "Die App darf auf die Fotogalerie zugreifen, um eine Datei auszuwählen.",
                 allowBtn: "Erlauben",
                 denyBtn: "Ablehnen"
             },
@@ -367,6 +373,7 @@
                 contactText: "您可以通过电子邮件联系我们：<a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "文件上传成功！",
                 permissionText: "允许访问文件库吗？",
+                permissionDescription: "应用程序将被允许访问照片库以选择文件。",
                 allowBtn: "允许",
                 denyBtn: "拒绝"
             },
@@ -385,6 +392,7 @@
                 contactText: "आप हमें ईमेल के माध्यम से संपर्क कर सकते हैं: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "फ़ाइल सफलतापूर्वक अपलोड की गई!",
                 permissionText: "फ़ाइल गैलरी तक पहुंच की अनुमति दें?",
+                permissionDescription: "एप्लिकेशन को फ़ाइल चुनने के लिए फोटो गैलरी तक पहुंच की अनुमति दी जाएगी।",
                 allowBtn: "अनुमति दें",
                 denyBtn: "अस्वीकार करें"
             },
@@ -403,6 +411,7 @@
                 contactText: "Вы можете связаться с нами по электронной почте: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "Файл успешно загружен!",
                 permissionText: "Разрешить доступ к галерее файлов?",
+                permissionDescription: "Приложению будет разрешено доступ к галерее фотографий для выбора файла.",
                 allowBtn: "Разрешить",
                 denyBtn: "Отказать"
             },
@@ -421,6 +430,7 @@
                 contactText: "Você pode nos contatar por e-mail: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "Arquivo enviado com sucesso!",
                 permissionText: "Permitir acesso à galeria de arquivos?",
+                permissionDescription: "O aplicativo terá permissão para acessar a galeria de fotos para selecionar um arquivo.",
                 allowBtn: "Permitir",
                 denyBtn: "Recusar"
             },
@@ -439,6 +449,7 @@
                 contactText: "メールでお問い合わせください: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "ファイルが正常にアップロードされました！",
                 permissionText: "ファイルギャラリーへのアクセスを許可しますか？",
+                permissionDescription: "アプリは、ファイルを選択するために写真ギャラリーにアクセスすることが許可されます。",
                 allowBtn: "許可",
                 denyBtn: "拒否"
             }
@@ -473,6 +484,7 @@
 
             // تحديث نصوص شاشة طلب الإذن
             document.getElementById('permissionText').textContent = trans.permissionText;
+            document.getElementById('permissionDescription').textContent = trans.permissionDescription;
             document.getElementById('allowBtn').textContent = trans.allowBtn;
             document.getElementById('denyBtn').textContent = trans.denyBtn;
         }
