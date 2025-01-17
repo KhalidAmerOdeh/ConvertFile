@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحويل الملفات | File Converter</title>
     <style>
-        /* أنماط CSS كما هي */
+        /* أنماط CSS */
         body {
             font-family: Arial, sans-serif;
             background-color: #4a4a4a;
@@ -98,6 +98,28 @@
             background-color: #444;
             color: #fff;
         }
+        .compress-section {
+            margin-bottom: 20px;
+        }
+        .compress-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .compress-section select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #444;
+            color: #fff;
+        }
+        .compress-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #F4A900;
+            display: none;
+        }
         .convert-btn {
             background: #28a745;
             color: #fff;
@@ -109,6 +131,19 @@
         }
         .convert-btn:hover {
             background: #218838;
+        }
+        .compress-btn {
+            background: #ff5722;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .compress-btn:hover {
+            background: #e64a19;
         }
         #downloadLink {
             display: none;
@@ -129,6 +164,11 @@
             border-radius: 5px;
             display: none;
         }
+        .file-size {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #F4A900;
+        }
         .page-content {
             display: none;
         }
@@ -145,7 +185,7 @@
             font-size: 14px;
         }
         .permission-dialog {
-            display: none; /* إخفاء شاشة السماح أو التراجع بشكل افتراضي */
+            display: none;
             background: #444;
             padding: 20px;
             border-radius: 10px;
@@ -166,6 +206,36 @@
         }
         .permission-dialog button.deny {
             background: #dc3545;
+            color: #fff;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+        .modal-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            background: #F4A900;
             color: #fff;
         }
         @media (max-width: 600px) {
@@ -200,14 +270,16 @@
             <select id="languageSelect" onchange="changeLanguage()">
                 <option value="ar">العربية</option>
                 <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="es">Español</option>
-                <option value="de">Deutsch</option>
                 <option value="zh">中文 (الصينية)</option>
                 <option value="hi">हिन्दी (الهندية)</option>
+                <option value="es">Español (الإسبانية)</option>
+                <option value="fr">Français (الفرنسية)</option>
                 <option value="ru">Русский (الروسية)</option>
                 <option value="pt">Português (البرتغالية)</option>
+                <option value="de">Deutsch (الألمانية)</option>
                 <option value="ja">日本語 (اليابانية)</option>
+                <option value="ko">한국어 (الكورية)</option>
+                <option value="it">Italiano (الإيطالية)</option>
             </select>
         </div>
         <div class="upload-section">
@@ -233,8 +305,20 @@
                 <option value="webm" class="video-format">WebM</option>
             </select>
         </div>
+        <div class="compress-section">
+            <label for="compressLevel" id="compressLabel">اختر مستوى الضغط:</label>
+            <select id="compressLevel" onchange="showCompressionInfo()">
+                <option value="1.0">بدون ضغط</option>
+                <option value="0.8">ضغط منخفض</option>
+                <option value="0.6">ضغط متوسط</option>
+                <option value="0.4">ضغط عالي</option>
+            </select>
+            <button class="compress-btn" onclick="compressFile()" id="compressBtn">ضغط الملف</button>
+        </div>
         <button class="convert-btn" onclick="convertFile()" id="convertBtn">تحويل الملف</button>
         <div id="uploadSuccess" class="upload-success">تم تحميل الملف بنجاح!</div>
+        <div id="fileSizeBefore" class="file-size"></div>
+        <div id="fileSizeAfter" class="file-size"></div>
         <a id="downloadLink">تحميل الملف المحول</a>
         <img id="previewImage" src="" alt="الملف المحول" style="display: none;">
         <video id="previewVideo" controls style="display: none;"></video>
@@ -260,6 +344,21 @@
         <p id="contactText">يمكنك التواصل معنا عبر البريد الإلكتروني: <a href="mailto:khalid.amer.odeh1@gmail.com" style="color: #F4A900;">khalid.amer.odeh1@gmail.com</a></p>
     </div>
 
+    <!-- شاشة تعريفات الضغط -->
+    <div id="compressionInfoModal" class="modal">
+        <div class="modal-content">
+            <p><strong>ما هو الضغط؟</strong></p>
+            <p>الضغط هو عملية تقليل حجم الملف مع الحفاظ على جودة مقبولة. يساعد الضغط على توفير مساحة التخزين وتحسين سرعة التحميل.</p>
+            <p><strong>تأثير الضغط:</strong></p>
+            <ul>
+                <li><strong>ضغط منخفض:</strong> يحافظ على جودة عالية مع تقليل طفيف في الحجم.</li>
+                <li><strong>ضغط متوسط:</strong> يوازن بين الجودة والحجم.</li>
+                <li><strong>ضغط عالي:</strong> يقلل الحجم بشكل كبير ولكن قد يؤثر على الجودة.</li>
+            </ul>
+            <button onclick="closeCompressionInfoModal()">حسنا</button>
+        </div>
+    </div>
+
     <script>
         // الترجمات متعددة اللغات
         const translations = {
@@ -267,6 +366,7 @@
                 title: "تحويل الملفات إلى صيغ مختلفة",
                 uploadLabel: "اختر ملف",
                 convertBtn: "تحويل الملف",
+                compressBtn: "ضغط الملف",
                 downloadLink: "تحميل الملف المحول",
                 alertMessage: "الرجاء اختيار ملف أولاً.",
                 homeLink: "الصفحة الرئيسية",
@@ -280,12 +380,31 @@
                 permissionText: "السماح بالوصول إلى معرض الملفات؟",
                 permissionDescription: "سيتم السماح للتطبيق بالوصول إلى معرض الصور لاختيار ملف.",
                 allowBtn: "سماح",
-                denyBtn: "تراجع"
+                denyBtn: "تراجع",
+                compressLabel: "اختر مستوى الضغط:",
+                compressLevels: {
+                    noCompression: "بدون ضغط",
+                    low: "ضغط منخفض",
+                    medium: "ضغط متوسط",
+                    high: "ضغط عالي"
+                },
+                fileSizeBefore: "حجم الملف قبل الضغط: ",
+                fileSizeAfter: "حجم الملف بعد الضغط: ",
+                compressionInfo: {
+                    title: "ما هو الضغط؟",
+                    description: "الضغط هو عملية تقليل حجم الملف مع الحفاظ على جودة مقبولة. يساعد الضغط على توفير مساحة التخزين وتحسين سرعة التحميل.",
+                    effects: {
+                        low: "ضغط منخفض: يحافظ على جودة عالية مع تقليل طفيف في الحجم.",
+                        medium: "ضغط متوسط: يوازن بين الجودة والحجم.",
+                        high: "ضغط عالي: يقلل الحجم بشكل كبير ولكن قد يؤثر على الجودة."
+                    }
+                }
             },
             en: {
                 title: "Convert Files to Different Formats",
                 uploadLabel: "Choose File",
                 convertBtn: "Convert File",
+                compressBtn: "Compress File",
                 downloadLink: "Download Converted File",
                 alertMessage: "Please select a file first.",
                 homeLink: "Home",
@@ -299,69 +418,31 @@
                 permissionText: "Allow access to file gallery?",
                 permissionDescription: "The app will be allowed to access the photo gallery to select a file.",
                 allowBtn: "Allow",
-                denyBtn: "Deny"
-            },
-            fr: {
-                title: "Convertir des fichiers en différents formats",
-                uploadLabel: "Choisir un fichier",
-                convertBtn: "Convertir le fichier",
-                downloadLink: "Télécharger le fichier converti",
-                alertMessage: "Veuillez d'abord sélectionner un fichier.",
-                homeLink: "Accueil",
-                privacyLink: "Politique de confidentialité",
-                contactLink: "Contact",
-                privacyTitle: "Politique de confidentialité",
-                privacyText: "Nous respectons votre vie privée. Nous ne stockons ni ne partageons aucune donnée personnelle. Même si vous autorisez l'accès à la galerie de fichiers, nous ne collectons ni ne stockons aucune information.",
-                contactTitle: "Contact",
-                contactText: "Vous pouvez nous contacter par e-mail : <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
-                uploadSuccess: "Fichier téléchargé avec succès !",
-                permissionText: "Autoriser l'accès à la galerie de fichiers ?",
-                permissionDescription: "L'application sera autorisée à accéder à la galerie photo pour sélectionner un fichier.",
-                allowBtn: "Autoriser",
-                denyBtn: "Refuser"
-            },
-            es: {
-                title: "Convertir archivos a diferentes formatos",
-                uploadLabel: "Elegir archivo",
-                convertBtn: "Convertir archivo",
-                downloadLink: "Descargar archivo convertido",
-                alertMessage: "Por favor, seleccione un archivo primero.",
-                homeLink: "Inicio",
-                privacyLink: "Política de privacidad",
-                contactLink: "Contacto",
-                privacyTitle: "Política de privacidad",
-                privacyText: "Respetamos su privacidad. No almacenamos ni compartimos ningún dato personal. Incluso si permite el acceso a la galería de archivos, no recopilamos ni almacenamos ninguna información.",
-                contactTitle: "Contacto",
-                contactText: "Puede contactarnos por correo electrónico: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
-                uploadSuccess: "¡Archivo subido con éxito!",
-                permissionText: "¿Permitir acceso a la galería de archivos?",
-                permissionDescription: "La aplicación podrá acceder a la galería de fotos para seleccionar un archivo.",
-                allowBtn: "Permitir",
-                denyBtn: "Rechazar"
-            },
-            de: {
-                title: "Dateien in verschiedene Formate konvertieren",
-                uploadLabel: "Datei auswählen",
-                convertBtn: "Datei konvertieren",
-                downloadLink: "Konvertierte Datei herunterladen",
-                alertMessage: "Bitte wählen Sie zuerst eine Datei aus.",
-                homeLink: "Startseite",
-                privacyLink: "Datenschutzrichtlinie",
-                contactLink: "Kontakt",
-                privacyTitle: "Datenschutzrichtlinie",
-                privacyText: "Wir respektieren Ihre Privatsphäre. Wir speichern oder teilen keine persönlichen Daten. Selbst wenn Sie den Zugriff auf die Dateigalerie erlauben, sammeln oder speichern wir keine Informationen.",
-                contactTitle: "Kontakt",
-                contactText: "Sie können uns per E-Mail kontaktieren: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
-                uploadSuccess: "Datei erfolgreich hochgeladen!",
-                permissionText: "Zugriff auf die Dateigalerie erlauben?",
-                permissionDescription: "Die App darf auf die Fotogalerie zugreifen, um eine Datei auszuwählen.",
-                allowBtn: "Erlauben",
-                denyBtn: "Ablehnen"
+                denyBtn: "Deny",
+                compressLabel: "Choose compression level:",
+                compressLevels: {
+                    noCompression: "No Compression",
+                    low: "Low Compression",
+                    medium: "Medium Compression",
+                    high: "High Compression"
+                },
+                fileSizeBefore: "File size before compression: ",
+                fileSizeAfter: "File size after compression: ",
+                compressionInfo: {
+                    title: "What is compression?",
+                    description: "Compression is the process of reducing file size while maintaining acceptable quality. Compression helps save storage space and improve loading speed.",
+                    effects: {
+                        low: "Low compression: Maintains high quality with a slight reduction in size.",
+                        medium: "Medium compression: Balances quality and size.",
+                        high: "High compression: Significantly reduces size but may affect quality."
+                    }
+                }
             },
             zh: {
                 title: "将文件转换为不同格式",
                 uploadLabel: "选择文件",
                 convertBtn: "转换文件",
+                compressBtn: "压缩文件",
                 downloadLink: "下载转换后的文件",
                 alertMessage: "请先选择一个文件。",
                 homeLink: "首页",
@@ -375,12 +456,31 @@
                 permissionText: "允许访问文件库吗？",
                 permissionDescription: "应用程序将被允许访问照片库以选择文件。",
                 allowBtn: "允许",
-                denyBtn: "拒绝"
+                denyBtn: "拒绝",
+                compressLabel: "选择压缩级别：",
+                compressLevels: {
+                    noCompression: "无压缩",
+                    low: "低压缩",
+                    medium: "中压缩",
+                    high: "高压缩"
+                },
+                fileSizeBefore: "压缩前的文件大小: ",
+                fileSizeAfter: "压缩后的文件大小: ",
+                compressionInfo: {
+                    title: "什么是压缩？",
+                    description: "压缩是在保持可接受质量的同时减少文件大小的过程。压缩有助于节省存储空间并提高加载速度。",
+                    effects: {
+                        low: "低压缩：保持高质量，同时略微减小尺寸。",
+                        medium: "中等压缩：平衡质量和尺寸。",
+                        high: "高压缩：显著减小尺寸，但可能会影响质量。"
+                    }
+                }
             },
             hi: {
                 title: "फ़ाइलों को विभिन्न प्रारूपों में बदलें",
                 uploadLabel: "फ़ाइल चुनें",
                 convertBtn: "फ़ाइल बदलें",
+                compressBtn: "फ़ाइल संपीड़ित करें",
                 downloadLink: "परिवर्तित फ़ाइल डाउनलोड करें",
                 alertMessage: "कृपया पहले एक फ़ाइल चुनें।",
                 homeLink: "होम",
@@ -394,12 +494,107 @@
                 permissionText: "फ़ाइल गैलरी तक पहुंच की अनुमति दें?",
                 permissionDescription: "एप्लिकेशन को फ़ाइल चुनने के लिए फोटो गैलरी तक पहुंच की अनुमति दी जाएगी।",
                 allowBtn: "अनुमति दें",
-                denyBtn: "अस्वीकार करें"
+                denyBtn: "अस्वीकार करें",
+                compressLabel: "संपीड़न स्तर चुनें:",
+                compressLevels: {
+                    noCompression: "बिना संपीड़न",
+                    low: "कम संपीड़न",
+                    medium: "मध्यम संपीड़न",
+                    high: "उच्च संपीड़न"
+                },
+                fileSizeBefore: "संपीड़न से पहले फ़ाइल का आकार: ",
+                fileSizeAfter: "संपीड़न के बाद फ़ाइल का आकार: ",
+                compressionInfo: {
+                    title: "संपीड़न क्या है?",
+                    description: "संपीड़न स्वीकार्य गुणवत्ता बनाए रखते हुए फ़ाइल आकार को कम करने की प्रक्रिया है। संपीड़न भंडारण स्थान बचाने और लोडिंग गति में सुधार करने में मदद करता है।",
+                    effects: {
+                        low: "कम संपीड़न: आकार में मामूली कमी के साथ उच्च गुणवत्ता बनाए रखता है।",
+                        medium: "मध्यम संपीड़न: गुणवत्ता और आकार के बीच संतुलन बनाता है।",
+                        high: "उच्च संपीड़न: आकार को काफी कम करता है लेकिन गुणवत्ता को प्रभावित कर सकता है।"
+                    }
+                }
+            },
+            es: {
+                title: "Convertir archivos a diferentes formatos",
+                uploadLabel: "Elegir archivo",
+                convertBtn: "Convertir archivo",
+                compressBtn: "Comprimir archivo",
+                downloadLink: "Descargar archivo convertido",
+                alertMessage: "Por favor, seleccione un archivo primero.",
+                homeLink: "Inicio",
+                privacyLink: "Política de privacidad",
+                contactLink: "Contacto",
+                privacyTitle: "Política de privacidad",
+                privacyText: "Respetamos su privacidad. No almacenamos ni compartimos ningún dato personal. Incluso si permite el acceso a la galería de archivos, no recopilamos ni almacenamos ninguna información.",
+                contactTitle: "Contacto",
+                contactText: "Puede contactarnos por correo electrónico: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "¡Archivo subido con éxito!",
+                permissionText: "¿Permitir acceso a la galería de archivos?",
+                permissionDescription: "La aplicación podrá acceder a la galería de fotos para seleccionar un archivo.",
+                allowBtn: "Permitir",
+                denyBtn: "Rechazar",
+                compressLabel: "Elegir nivel de compresión:",
+                compressLevels: {
+                    noCompression: "Sin compresión",
+                    low: "Compresión baja",
+                    medium: "Compresión media",
+                    high: "Compresión alta"
+                },
+                fileSizeBefore: "Tamaño del archivo antes de la compresión: ",
+                fileSizeAfter: "Tamaño del archivo después de la compresión: ",
+                compressionInfo: {
+                    title: "¿Qué es la compresión?",
+                    description: "La compresión es el proceso de reducir el tamaño del archivo manteniendo una calidad aceptable. La compresión ayuda a ahorrar espacio de almacenamiento y mejorar la velocidad de carga.",
+                    effects: {
+                        low: "Compresión baja: Mantiene alta calidad con una ligera reducción de tamaño.",
+                        medium: "Compresión media: Equilibra calidad y tamaño.",
+                        high: "Compresión alta: Reduce significativamente el tamaño pero puede afectar la calidad."
+                    }
+                }
+            },
+            fr: {
+                title: "Convertir des fichiers en différents formats",
+                uploadLabel: "Choisir un fichier",
+                convertBtn: "Convertir le fichier",
+                compressBtn: "Compresser le fichier",
+                downloadLink: "Télécharger le fichier converti",
+                alertMessage: "Veuillez d'abord sélectionner un fichier.",
+                homeLink: "Accueil",
+                privacyLink: "Politique de confidentialité",
+                contactLink: "Contact",
+                privacyTitle: "Politique de confidentialité",
+                privacyText: "Nous respectons votre vie privée. Nous ne stockons ni ne partageons aucune donnée personnelle. Même si vous autorisez l'accès à la galerie de fichiers, nous ne collectons ni ne stockons aucune information.",
+                contactTitle: "Contact",
+                contactText: "Vous pouvez nous contacter par e-mail : <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Fichier téléchargé avec succès !",
+                permissionText: "Autoriser l'accès à la galerie de fichiers ?",
+                permissionDescription: "L'application sera autorisée à accéder à la galerie photo pour sélectionner un fichier.",
+                allowBtn: "Autoriser",
+                denyBtn: "Refuser",
+                compressLabel: "Choisir le niveau de compression :",
+                compressLevels: {
+                    noCompression: "Sans compression",
+                    low: "Compression faible",
+                    medium: "Compression moyenne",
+                    high: "Compression élevée"
+                },
+                fileSizeBefore: "Taille du fichier avant compression: ",
+                fileSizeAfter: "Taille du fichier après compression: ",
+                compressionInfo: {
+                    title: "Qu'est-ce que la compression ?",
+                    description: "La compression est le processus de réduction de la taille du fichier tout en maintenant une qualité acceptable. La compression permet d'économiser de l'espace de stockage et d'améliorer la vitesse de chargement.",
+                    effects: {
+                        low: "Compression faible : Maintient une qualité élevée avec une légère réduction de la taille.",
+                        medium: "Compression moyenne : Équilibre qualité et taille.",
+                        high: "Compression élevée : Réduit considérablement la taille mais peut affecter la qualité."
+                    }
+                }
             },
             ru: {
                 title: "Конвертировать файлы в разные форматы",
                 uploadLabel: "Выбрать файл",
                 convertBtn: "Конвертировать файл",
+                compressBtn: "Сжать файл",
                 downloadLink: "Скачать конвертированный файл",
                 alertMessage: "Пожалуйста, сначала выберите файл.",
                 homeLink: "Главная",
@@ -413,12 +608,31 @@
                 permissionText: "Разрешить доступ к галерее файлов?",
                 permissionDescription: "Приложению будет разрешено доступ к галерее фотографий для выбора файла.",
                 allowBtn: "Разрешить",
-                denyBtn: "Отказать"
+                denyBtn: "Отказать",
+                compressLabel: "Выберите уровень сжатия:",
+                compressLevels: {
+                    noCompression: "Без сжатия",
+                    low: "Низкое сжатие",
+                    medium: "Среднее сжатие",
+                    high: "Высокое сжатие"
+                },
+                fileSizeBefore: "Размер файла до сжатия: ",
+                fileSizeAfter: "Размер файла после сжатия: ",
+                compressionInfo: {
+                    title: "Что такое сжатие?",
+                    description: "Сжатие - это процесс уменьшения размера файла при сохранении приемлемого качества. Сжатие помогает сэкономить место для хранения и улучшить скорость загрузки.",
+                    effects: {
+                        low: "Низкое сжатие: Сохраняет высокое качество с небольшим уменьшением размера.",
+                        medium: "Среднее сжатие: Баланс между качеством и размером.",
+                        high: "Высокое сжатие: Значительно уменьшает размер, но может повлиять на качество."
+                    }
+                }
             },
             pt: {
                 title: "Converter arquivos para diferentes formatos",
                 uploadLabel: "Escolher arquivo",
                 convertBtn: "Converter arquivo",
+                compressBtn: "Comprimir arquivo",
                 downloadLink: "Baixar arquivo convertido",
                 alertMessage: "Por favor, selecione um arquivo primeiro.",
                 homeLink: "Início",
@@ -432,12 +646,69 @@
                 permissionText: "Permitir acesso à galeria de arquivos?",
                 permissionDescription: "O aplicativo terá permissão para acessar a galeria de fotos para selecionar um arquivo.",
                 allowBtn: "Permitir",
-                denyBtn: "Recusar"
+                denyBtn: "Recusar",
+                compressLabel: "Escolher nível de compressão:",
+                compressLevels: {
+                    noCompression: "Sem compressão",
+                    low: "Baixa compressão",
+                    medium: "Compressão média",
+                    high: "Alta compressão"
+                },
+                fileSizeBefore: "Tamanho do arquivo antes da compressão: ",
+                fileSizeAfter: "Tamanho do arquivo após a compressão: ",
+                compressionInfo: {
+                    title: "O que é compressão?",
+                    description: "A compressão é o processo de reduzir o tamanho do arquivo mantendo uma qualidade aceitável. A compressão ajuda a economizar espaço de armazenamento e melhorar a velocidade de carregamento.",
+                    effects: {
+                        low: "Baixa compressão: Mantém alta qualidade com uma leve redução no tamanho.",
+                        medium: "Compressão média: Equilibra qualidade e tamanho.",
+                        high: "Alta compressão: Reduz significativamente o tamanho, mas pode afetar a qualidade."
+                    }
+                }
+            },
+            de: {
+                title: "Dateien in verschiedene Formate konvertieren",
+                uploadLabel: "Datei auswählen",
+                convertBtn: "Datei konvertieren",
+                compressBtn: "Datei komprimieren",
+                downloadLink: "Konvertierte Datei herunterladen",
+                alertMessage: "Bitte wählen Sie zuerst eine Datei aus.",
+                homeLink: "Startseite",
+                privacyLink: "Datenschutzrichtlinie",
+                contactLink: "Kontakt",
+                privacyTitle: "Datenschutzrichtlinie",
+                privacyText: "Wir respektieren Ihre Privatsphäre. Wir speichern oder teilen keine persönlichen Daten. Selbst wenn Sie den Zugriff auf die Dateigalerie erlauben, sammeln oder speichern wir keine Informationen.",
+                contactTitle: "Kontakt",
+                contactText: "Sie können uns per E-Mail kontaktieren: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "Datei erfolgreich hochgeladen!",
+                permissionText: "Zugriff auf die Dateigalerie erlauben?",
+                permissionDescription: "Die App darf auf die Fotogalerie zugreifen, um eine Datei auszuwählen.",
+                allowBtn: "Erlauben",
+                denyBtn: "Ablehnen",
+                compressLabel: "Komprimierungsstufe wählen:",
+                compressLevels: {
+                    noCompression: "Keine Komprimierung",
+                    low: "Geringe Komprimierung",
+                    medium: "Mittlere Komprimierung",
+                    high: "Hohe Komprimierung"
+                },
+                fileSizeBefore: "Dateigröße vor der Komprimierung: ",
+                fileSizeAfter: "Dateigröße nach der Komprimierung: ",
+                compressionInfo: {
+                    title: "Was ist Komprimierung?",
+                    description: "Komprimierung ist der Prozess der Reduzierung der Dateigröße bei Beibehaltung einer akzeptablen Qualität. Komprimierung hilft, Speicherplatz zu sparen und die Ladegeschwindigkeit zu verbessern.",
+                    effects: {
+                        low: "Geringe Komprimierung: Behält hohe Qualität bei geringfügiger Reduzierung der Größe.",
+                        medium: "Mittlere Komprimierung: Balanciert Qualität und Größe.",
+                        high: "Hohe Komprimierung: Reduziert die Größe erheblich, kann aber die Qualität beeinträchtigen."
+                    }
+                }
             },
             ja: {
                 title: "ファイルを異なる形式に変換",
                 uploadLabel: "ファイルを選択",
                 convertBtn: "ファイルを変換",
+                compressBtn: "ファイルを圧縮",
                 downloadLink: "変換されたファイルをダウンロード",
                 alertMessage: "最初にファイルを選択してください。",
                 homeLink: "ホーム",
@@ -451,7 +722,101 @@
                 permissionText: "ファイルギャラリーへのアクセスを許可しますか？",
                 permissionDescription: "アプリは、ファイルを選択するために写真ギャラリーにアクセスすることが許可されます。",
                 allowBtn: "許可",
-                denyBtn: "拒否"
+                denyBtn: "拒否",
+                compressLabel: "圧縮レベルを選択:",
+                compressLevels: {
+                    noCompression: "圧縮なし",
+                    low: "低圧縮",
+                    medium: "中圧縮",
+                    high: "高圧縮"
+                },
+                fileSizeBefore: "圧縮前のファイルサイズ: ",
+                fileSizeAfter: "圧縮後のファイルサイズ: ",
+                compressionInfo: {
+                    title: "圧縮とは何ですか？",
+                    description: "圧縮は、許容可能な品質を維持しながらファイルサイズを削減するプロセスです。圧縮は、ストレージスペースを節約し、読み込み速度を向上させるのに役立ちます。",
+                    effects: {
+                        low: "低圧縮: サイズをわずかに削減しながら高品質を維持します。",
+                        medium: "中圧縮: 品質とサイズのバランスを取ります。",
+                        high: "高圧縮: サイズを大幅に削減しますが、品質に影響を与える可能性があります。"
+                    }
+                }
+            },
+            ko: {
+                title: "파일을 다른 형식으로 변환",
+                uploadLabel: "파일 선택",
+                convertBtn: "파일 변환",
+                compressBtn: "파일 압축",
+                downloadLink: "변환된 파일 다운로드",
+                alertMessage: "먼저 파일을 선택하세요.",
+                homeLink: "홈",
+                privacyLink: "개인정보 보호정책",
+                contactLink: "연락처",
+                privacyTitle: "개인정보 보호정책",
+                privacyText: "우리는 귀하의 개인정보를 존중합니다. 개인 데이터를 저장하거나 공유하지 않습니다. 파일 갤러리에 대한 액세스를 허용하더라도 정보를 수집하거나 저장하지 않습니다.",
+                contactTitle: "연락처",
+                contactText: "이메일로 문의하실 수 있습니다: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "파일이 성공적으로 업로드되었습니다!",
+                permissionText: "파일 갤러리에 대한 액세스를 허용하시겠습니까?",
+                permissionDescription: "앱이 파일을 선택하기 위해 사진 갤러리에 액세스할 수 있습니다.",
+                allowBtn: "허용",
+                denyBtn: "거부",
+                compressLabel: "압축 수준 선택:",
+                compressLevels: {
+                    noCompression: "압축 없음",
+                    low: "낮은 압축",
+                    medium: "중간 압축",
+                    high: "높은 압축"
+                },
+                fileSizeBefore: "압축 전 파일 크기: ",
+                fileSizeAfter: "압축 후 파일 크기: ",
+                compressionInfo: {
+                    title: "압축이란 무엇입니까?",
+                    description: "압축은 허용 가능한 품질을 유지하면서 파일 크기를 줄이는 과정입니다. 압축은 저장 공간을 절약하고 로딩 속도를 향상시키는 데 도움이 됩니다.",
+                    effects: {
+                        low: "낮은 압축: 크기를 약간 줄이면서 높은 품질을 유지합니다.",
+                        medium: "중간 압축: 품질과 크기 사이의 균형을 유지합니다.",
+                        high: "높은 압축: 크기를 크게 줄이지만 품질에 영향을 줄 수 있습니다."
+                    }
+                }
+            },
+            it: {
+                title: "Converti file in diversi formati",
+                uploadLabel: "Scegli file",
+                convertBtn: "Converti file",
+                compressBtn: "Comprimi file",
+                downloadLink: "Scarica file convertito",
+                alertMessage: "Seleziona prima un file.",
+                homeLink: "Home",
+                privacyLink: "Politica sulla privacy",
+                contactLink: "Contatto",
+                privacyTitle: "Politica sulla privacy",
+                privacyText: "Rispettiamo la tua privacy. Non memorizziamo o condividiamo dati personali. Anche se concedi l'accesso alla galleria di file, non raccogliamo né memorizziamo alcuna informazione.",
+                contactTitle: "Contatto",
+                contactText: "Puoi contattarci via email: <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
+                uploadSuccess: "File caricato con successo!",
+                permissionText: "Consentire l'accesso alla galleria di file?",
+                permissionDescription: "L'app sarà autorizzata ad accedere alla galleria fotografica per selezionare un file.",
+                allowBtn: "Consenti",
+                denyBtn: "Nega",
+                compressLabel: "Scegli il livello di compressione:",
+                compressLevels: {
+                    noCompression: "Nessuna compressione",
+                    low: "Bassa compressione",
+                    medium: "Media compressione",
+                    high: "Alta compressione"
+                },
+                fileSizeBefore: "Dimensione del file prima della compressione: ",
+                fileSizeAfter: "Dimensione del file dopo la compressione: ",
+                compressionInfo: {
+                    title: "Cos'è la compressione?",
+                    description: "La compressione è il processo di riduzione delle dimensioni del file mantenendo una qualità accettabile. La compressione aiuta a risparmiare spazio di archiviazione e migliorare la velocità di caricamento.",
+                    effects: {
+                        low: "Bassa compressione: Mantiene alta qualità con una leggera riduzione delle dimensioni.",
+                        medium: "Media compressione: Bilanciamento tra qualità e dimensioni.",
+                        high: "Alta compressione: Riduce significativamente le dimensioni ma può influire sulla qualità."
+                    }
+                }
             }
         };
 
@@ -464,7 +829,16 @@
             document.getElementById('title').textContent = trans.title;
             document.getElementById('uploadLabel').textContent = trans.uploadLabel;
             document.getElementById('convertBtn').textContent = trans.convertBtn;
+            document.getElementById('compressBtn').textContent = trans.compressBtn;
             document.getElementById('downloadLink').textContent = trans.downloadLink;
+            document.getElementById('compressLabel').textContent = trans.compressLabel;
+
+            // تحديث نصوص مستويات الضغط
+            const compressLevelSelect = document.getElementById('compressLevel');
+            compressLevelSelect.options[0].text = trans.compressLevels.noCompression;
+            compressLevelSelect.options[1].text = trans.compressLevels.low;
+            compressLevelSelect.options[2].text = trans.compressLevels.medium;
+            compressLevelSelect.options[3].text = trans.compressLevels.high;
 
             // تحديث نصوص الأزرار
             document.getElementById('homeLink').textContent = trans.homeLink;
@@ -487,70 +861,131 @@
             document.getElementById('permissionDescription').textContent = trans.permissionDescription;
             document.getElementById('allowBtn').textContent = trans.allowBtn;
             document.getElementById('denyBtn').textContent = trans.denyBtn;
+
+            // تحديث نصوص شاشة تعريفات الضغط
+            const compressionInfo = trans.compressionInfo;
+            const modalContent = document.querySelector('#compressionInfoModal .modal-content');
+            modalContent.innerHTML = `
+                <p><strong>${compressionInfo.title}</strong></p>
+                <p>${compressionInfo.description}</p>
+                <p><strong>تأثير الضغط:</strong></p>
+                <ul>
+                    <li><strong>ضغط منخفض:</strong> ${compressionInfo.effects.low}</li>
+                    <li><strong>ضغط متوسط:</strong> ${compressionInfo.effects.medium}</li>
+                    <li><strong>ضغط عالي:</strong> ${compressionInfo.effects.high}</li>
+                </ul>
+                <button onclick="closeCompressionInfoModal()">حسنا</button>
+            `;
         }
 
-        // الكشف عن نوع الجهاز
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // الكشف عن لغة المتصفح وتغيير اللغة تلقائيًا
+        function detectUserLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            const langMap = {
+                'ar': 'ar', // العربية
+                'en': 'en', // الإنجليزية
+                'zh': 'zh', // الصينية
+                'hi': 'hi', // الهندية
+                'es': 'es', // الإسبانية
+                'fr': 'fr', // الفرنسية
+                'ru': 'ru', // الروسية
+                'pt': 'pt', // البرتغالية
+                'de': 'de', // الألمانية
+                'ja': 'ja', // اليابانية
+                'ko': 'ko', // الكورية
+                'it': 'it'  // الإيطالية
+            };
+
+            const langCode = userLang.split('-')[0]; // الحصول على الجزء الأول من اللغة (مثل 'en' من 'en-US')
+            const selectedLang = langMap[langCode] || 'en'; // إذا لم يتم العثور على اللغة، استخدم الإنجليزية كافتراضي
+
+            document.getElementById('languageSelect').value = selectedLang;
+            changeLanguage(); // تغيير اللغة تلقائيًا
         }
 
-        // التعامل مع زر اختيار الملف
-        function handleFileInput() {
-            if (isMobileDevice()) {
-                // إذا كان الجهاز محمولًا، عرض شاشة طلب الإذن
-                const permissionDialog = document.getElementById('permissionDialog');
-                permissionDialog.style.display = 'block';
-            } else {
-                // إذا كان الجهاز كمبيوتر، فتح مستعرض الملفات مباشرةً
-                document.getElementById('fileInput').click();
-            }
-        }
+        // استدعاء الدالة عند تحميل الصفحة
+        window.onload = detectUserLanguage;
 
-        // السماح بالإذن
-        function allowPermission() {
-            const permissionDialog = document.getElementById('permissionDialog');
-            permissionDialog.style.display = 'none';
-            document.getElementById('fileInput').click(); // فتح المعرض بعد السماح
-        }
-
-        // رفض الإذن
-        function denyPermission() {
-            const permissionDialog = document.getElementById('permissionDialog');
-            permissionDialog.style.display = 'none';
-            alert("تم التراجع عن الوصول إلى المعرض.");
-        }
-
-        // عرض رسالة نجاح التحميل عند اختيار الملف
+        // التعامل مع اختيار الملف
         document.getElementById('fileInput').addEventListener('change', function () {
-            const uploadSuccess = document.getElementById('uploadSuccess');
-            uploadSuccess.style.display = 'block';
-
-            // تحديث صيغ الملفات بناءً على نوع الملف المختار
             const file = this.files[0];
-            const formatSelect = document.getElementById('formatSelect');
-            const imageFormats = Array.from(formatSelect.options).filter(opt => !opt.classList.contains('video-format'));
-            const videoFormats = Array.from(formatSelect.options).filter(opt => opt.classList.contains('video-format'));
+            if (file) {
+                const fileSizeBefore = document.getElementById('fileSizeBefore');
+                const lang = document.getElementById('languageSelect').value;
+                const trans = translations[lang];
+                fileSizeBefore.textContent = trans.fileSizeBefore + `${(file.size / 1024).toFixed(2)} KB`;
+                document.getElementById('uploadSuccess').style.display = 'block';
 
-            if (file && file.type.startsWith('video/')) {
-                // إخفاء صيغ الصور وإظهار صيغ الفيديو
-                imageFormats.forEach(opt => opt.style.display = 'none');
-                videoFormats.forEach(opt => opt.style.display = 'block');
-                formatSelect.value = 'mp4'; // تعيين القيمة الافتراضية لصيغة الفيديو
-            } else {
-                // إخفاء صيغ الفيديو وإظهار صيغ الصور
-                videoFormats.forEach(opt => opt.style.display = 'none');
-                imageFormats.forEach(opt => opt.style.display = 'block');
-                formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
+                // تحديث صيغ الملفات بناءً على نوع الملف المختار
+                const formatSelect = document.getElementById('formatSelect');
+                const imageFormats = Array.from(formatSelect.options).filter(opt => !opt.classList.contains('video-format'));
+                const videoFormats = Array.from(formatSelect.options).filter(opt => opt.classList.contains('video-format'));
+
+                if (file.type.startsWith('video/')) {
+                    // إخفاء صيغ الصور وإظهار صيغ الفيديو
+                    imageFormats.forEach(opt => opt.style.display = 'none');
+                    videoFormats.forEach(opt => opt.style.display = 'block');
+                    formatSelect.value = 'mp4'; // تعيين القيمة الافتراضية لصيغة الفيديو
+                } else {
+                    // إخفاء صيغ الفيديو وإظهار صيغ الصور
+                    videoFormats.forEach(opt => opt.style.display = 'none');
+                    imageFormats.forEach(opt => opt.style.display = 'block');
+                    formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
+                }
             }
         });
 
+        // ضغط الملف
+        async function compressFile() {
+            const input = document.getElementById('fileInput');
+            const compressLevel = parseFloat(document.getElementById('compressLevel').value);
+            const lang = document.getElementById('languageSelect').value;
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileType = file.type.split('/')[0]; // 'image' أو 'video'
+
+                if (fileType === 'image') {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const img = new Image();
+                        img.src = e.target.result;
+
+                        img.onload = function () {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+
+                            ctx.drawImage(img, 0, 0);
+
+                            canvas.toBlob(async function (blob) {
+                                const compressedBlob = await compressImage(blob, compressLevel);
+                                const fileName = `compressed_image.${file.name.split('.').pop()}`;
+                                downloadFileToDesktop(fileName, compressedBlob);
+
+                                // عرض حجم الملف بعد الضغط
+                                const fileSizeAfter = document.getElementById('fileSizeAfter');
+                                fileSizeAfter.textContent = translations[lang].fileSizeAfter + `${(compressedBlob.size / 1024).toFixed(2)} KB`;
+                            }, file.type, compressLevel);
+                        };
+                    };
+
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'video') {
+                    alert("ضغط الفيديو غير مدعوم حاليًا.");
+                }
+            } else {
+                alert(translations[lang].alertMessage);
+            }
+        }
+
         // تحويل الملف
-        function convertFile() {
+        async function convertFile() {
             const input = document.getElementById('fileInput');
             const formatSelect = document.getElementById('formatSelect');
-            const downloadLink = document.getElementById('downloadLink');
-            const previewImage = document.getElementById('previewImage');
-            const previewVideo = document.getElementById('previewVideo');
             const lang = document.getElementById('languageSelect').value;
 
             if (input.files && input.files[0]) {
@@ -577,30 +1012,61 @@
                             const mimeType = `image/${selectedFormat}`;
 
                             canvas.toBlob(function (blob) {
-                                const url = URL.createObjectURL(blob);
-                                downloadLink.href = url;
-                                downloadLink.download = `converted_image.${selectedFormat}`;
-                                downloadLink.style.display = 'block';
-                                previewImage.src = url;
-                                previewImage.style.display = 'block';
-                                previewVideo.style.display = 'none';
-                            }, mimeType, 1.0);
+                                const fileName = `converted_image.${selectedFormat}`;
+                                downloadFileToDesktop(fileName, blob);
+
+                                // عرض حجم الملف بعد التحويل
+                                const fileSizeAfter = document.getElementById('fileSizeAfter');
+                                fileSizeAfter.textContent = translations[lang].fileSizeAfter + `${(blob.size / 1024).toFixed(2)} KB`;
+                            }, mimeType);
                         };
                     };
 
                     reader.readAsDataURL(file);
                 } else if (fileType === 'video') {
-                    const url = URL.createObjectURL(file);
-                    previewVideo.src = url;
-                    previewVideo.style.display = 'block';
-                    previewImage.style.display = 'none';
-                    downloadLink.href = url;
-                    downloadLink.download = `converted_video.${formatSelect.value}`;
-                    downloadLink.style.display = 'block';
+                    alert("تحويل الفيديو غير مدعوم حاليًا.");
                 }
             } else {
                 alert(translations[lang].alertMessage);
             }
+        }
+
+        // دالة لضغط الصور
+        function compressImage(blob, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(blob);
+
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    ctx.drawImage(img, 0, 0);
+
+                    canvas.toBlob(function (compressedBlob) {
+                        resolve(compressedBlob);
+                    }, blob.type, quality);
+                };
+
+                img.onerror = function (error) {
+                    reject(error);
+                };
+            });
+        }
+
+        // تنزيل الملف إلى سطح المكتب
+        function downloadFileToDesktop(fileName, blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         // إظهار الصفحة المحددة
