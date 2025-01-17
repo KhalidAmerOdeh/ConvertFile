@@ -145,7 +145,7 @@
             font-size: 14px;
         }
         .permission-dialog {
-            display: none;
+            display: none; /* إخفاء شاشة السماح أو التراجع بشكل افتراضي */
             background: #444;
             padding: 20px;
             border-radius: 10px;
@@ -520,6 +520,30 @@
             alert("تم التراجع عن الوصول إلى المعرض.");
         }
 
+        // عرض رسالة نجاح التحميل عند اختيار الملف
+        document.getElementById('fileInput').addEventListener('change', function () {
+            const uploadSuccess = document.getElementById('uploadSuccess');
+            uploadSuccess.style.display = 'block';
+
+            // تحديث صيغ الملفات بناءً على نوع الملف المختار
+            const file = this.files[0];
+            const formatSelect = document.getElementById('formatSelect');
+            const imageFormats = Array.from(formatSelect.options).filter(opt => !opt.classList.contains('video-format'));
+            const videoFormats = Array.from(formatSelect.options).filter(opt => opt.classList.contains('video-format'));
+
+            if (file && file.type.startsWith('video/')) {
+                // إخفاء صيغ الصور وإظهار صيغ الفيديو
+                imageFormats.forEach(opt => opt.style.display = 'none');
+                videoFormats.forEach(opt => opt.style.display = 'block');
+                formatSelect.value = 'mp4'; // تعيين القيمة الافتراضية لصيغة الفيديو
+            } else {
+                // إخفاء صيغ الفيديو وإظهار صيغ الصور
+                videoFormats.forEach(opt => opt.style.display = 'none');
+                imageFormats.forEach(opt => opt.style.display = 'block');
+                formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
+            }
+        });
+
         // تحويل الملف
         function convertFile() {
             const input = document.getElementById('fileInput');
@@ -527,7 +551,6 @@
             const downloadLink = document.getElementById('downloadLink');
             const previewImage = document.getElementById('previewImage');
             const previewVideo = document.getElementById('previewVideo');
-            const uploadSuccess = document.getElementById('uploadSuccess');
             const lang = document.getElementById('languageSelect').value;
 
             if (input.files && input.files[0]) {
@@ -561,7 +584,6 @@
                                 previewImage.src = url;
                                 previewImage.style.display = 'block';
                                 previewVideo.style.display = 'none';
-                                uploadSuccess.style.display = 'block';
                             }, mimeType, 1.0);
                         };
                     };
@@ -575,7 +597,6 @@
                     downloadLink.href = url;
                     downloadLink.download = `converted_video.${formatSelect.value}`;
                     downloadLink.style.display = 'block';
-                    uploadSuccess.style.display = 'block';
                 }
             } else {
                 alert(translations[lang].alertMessage);
@@ -592,26 +613,6 @@
         // إخفاء صيغ الفيديو بشكل افتراضي
         document.querySelectorAll('.video-format').forEach(option => {
             option.style.display = 'none';
-        });
-
-        // عرض صيغ الفيديو عند اختيار فيديو
-        document.getElementById('fileInput').addEventListener('change', function () {
-            const file = this.files[0];
-            const formatSelect = document.getElementById('formatSelect');
-            const imageFormats = Array.from(formatSelect.options).filter(opt => !opt.classList.contains('video-format'));
-            const videoFormats = Array.from(formatSelect.options).filter(opt => opt.classList.contains('video-format'));
-
-            if (file && file.type.startsWith('video/')) {
-                // إخفاء صيغ الصور وإظهار صيغ الفيديو
-                imageFormats.forEach(opt => opt.style.display = 'none');
-                videoFormats.forEach(opt => opt.style.display = 'block');
-                formatSelect.value = 'mp4'; // تعيين القيمة الافتراضية لصيغة الفيديو
-            } else {
-                // إخفاء صيغ الفيديو وإظهار صيغ الصور
-                videoFormats.forEach(opt => opt.style.display = 'none');
-                imageFormats.forEach(opt => opt.style.display = 'block');
-                formatSelect.value = 'jpeg'; // تعيين القيمة الافتراضية لصيغة الصورة
-            }
         });
     </script>
 </body>
