@@ -31,25 +31,119 @@ function compressFile() {
     alert("تم الضغط بنجاح!");
 }
 
-// تنزيل الملف تلقائيًا وتخزينه
-function downloadFile(fileUrl, fileName) {
-    fetch(fileUrl) // جلب الملف من الرابط
-        .then(response => response.blob()) // تحويل الملف إلى Blob
+// فتح أو إنشاء قاعدة بيانات IndexedDB
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('FileStorageDB', 1);
+
+        request.onupgradeneeded = function (event) {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('files')) {
+                db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = function (event) {
+            resolve(event.target.result);
+        };
+
+        request.onerror = function (event) {
+            reject('فشل فتح قاعدة البيانات');
+        };
+    });
+}
+
+// حفظ الملف في IndexedDB
+function saveFileToDB(file) {
+    return new Promise((resolve, reject) => {
+        openDB().then(db => {
+            const transaction = db.transaction('files', 'readwrite');
+            const store = transaction.objectStore('files');
+            const request = store.add(file);
+
+            request.onsuccess = function () {
+                resolve('تم حفظ الملف بنجاح');
+            };
+
+            request.onerror = function () {
+                reject('فشل حفظ الملف');
+            };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+}
+
+// استرجاع جميع الملفات من IndexedDB
+function getAllFilesFromDB() {
+    return new Promise((resolve, reject) => {
+        openDB().then(db => {
+            const transaction = db.transaction('files', 'readonly');
+            const store = transaction.objectStore('files');
+            const request = store.getAll();
+
+            request.onsuccess = function () {
+                resolve(request.result);
+            };
+
+            request.onerror = function () {
+                reject('فشل استرجاع الملفات');
+            };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+}
+
+// تنزيل الملف وحفظه في IndexedDB
+function downloadAndStoreFile(fileUrl, fileName) {
+    fetch(fileUrl)
+        .then(response => response.blob())
         .then(blob => {
-            const link = document.createElement('a'); // إنشاء عنصر <a>
-            const url = URL.createObjectURL(blob); // إنشاء رابط مؤقت للـ Blob
-            link.href = url; // تعيين الرابط المؤقت
-            link.download = fileName; // تعيين اسم الملف
-            document.body.appendChild(link); // إضافة العنصر إلى DOM
-            link.click(); // تنشيط النقر لبدء التنزيل
-            document.body.removeChild(link); // إزالة العنصر من DOM
-            URL.revokeObjectURL(url); // تحرير الرابط المؤقت
-            alert("تم تنزيل الملف وتخزينه بنجاح!");
+            const file = new File([blob], fileName, { type: blob.type });
+            saveFileToDB(file).then(() => {
+                alert("تم حفظ الملف في التطبيق بنجاح!");
+                displayStoredFiles(); // عرض الملفات المحفوظة بعد الحفظ
+            }).catch(error => {
+                console.error("حدث خطأ أثناء حفظ الملف:", error);
+                alert("فشل حفظ الملف. يرجى المحاولة مرة أخرى.");
+            });
         })
         .catch(error => {
             console.error("حدث خطأ أثناء تنزيل الملف:", error);
             alert("فشل تنزيل الملف. يرجى المحاولة مرة أخرى.");
         });
+}
+
+// عرض الملفات المحفوظة
+function displayStoredFiles() {
+    getAllFilesFromDB().then(files => {
+        const fileList = document.getElementById('savedFiles');
+        fileList.innerHTML = ''; // مسح القائمة الحالية
+
+        files.forEach(file => {
+            const listItem = document.createElement('li');
+            const fileUrl = URL.createObjectURL(file);
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = fileUrl;
+                img.style.maxWidth = '100px';
+                img.style.marginRight = '10px';
+                listItem.appendChild(img);
+            }
+
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = file.name;
+            link.textContent = file.name;
+            listItem.appendChild(link);
+
+            fileList.appendChild(listItem);
+        });
+    }).catch(error => {
+        console.error("حدث خطأ أثناء استرجاع الملفات:", error);
+    });
 }
 
 // التمرير السلس إلى أعلى الصفحة
@@ -70,3 +164,6 @@ window.onscroll = function() {
         console.error("عنصر backToTop غير موجود!");
     }
 };
+
+// عرض الملفات المحفوظة عند تحميل الصفحة
+window.onload = displayStoredFiles;
