@@ -31,14 +31,25 @@ function compressFile() {
     alert("تم الضغط بنجاح!");
 }
 
-// تنزيل الملف تلقائيًا
+// تنزيل الملف تلقائيًا وتخزينه
 function downloadFile(fileUrl, fileName) {
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    fetch(fileUrl) // جلب الملف من الرابط
+        .then(response => response.blob()) // تحويل الملف إلى Blob
+        .then(blob => {
+            const link = document.createElement('a'); // إنشاء عنصر <a>
+            const url = URL.createObjectURL(blob); // إنشاء رابط مؤقت للـ Blob
+            link.href = url; // تعيين الرابط المؤقت
+            link.download = fileName; // تعيين اسم الملف
+            document.body.appendChild(link); // إضافة العنصر إلى DOM
+            link.click(); // تنشيط النقر لبدء التنزيل
+            document.body.removeChild(link); // إزالة العنصر من DOM
+            URL.revokeObjectURL(url); // تحرير الرابط المؤقت
+            alert("تم تنزيل الملف وتخزينه بنجاح!");
+        })
+        .catch(error => {
+            console.error("حدث خطأ أثناء تنزيل الملف:", error);
+            alert("فشل تنزيل الملف. يرجى المحاولة مرة أخرى.");
+        });
 }
 
 // التمرير السلس إلى أعلى الصفحة
