@@ -1,38 +1,36 @@
-// عناصر واجهة المستخدم
-const imageInput = document.getElementById('imageInput'); // عنصر إدخال الصورة
-const uploadButton = document.getElementById('uploadButton'); // زر التحميل
-const imagePreview = document.getElementById('imagePreview'); // عنصر لعرض الصورة
-const imageLink = document.getElementById('imageLink'); // عنصر لعرض الرابط
+// دالة للكشف عن الأجهزة المحمولة
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
-// عند النقر على زر التحميل
-uploadButton.addEventListener('click', () => {
-    const file = imageInput.files[0]; // الحصول على الملف المحدد
-
-    if (file && file.type.startsWith('image/')) {
-        // تحويل الصورة إلى رابط مباشر
-        const imageUrl = URL.createObjectURL(file);
-
-        // عرض الصورة
-        imagePreview.src = imageUrl;
-        imagePreview.style.display = 'block';
-
-        // عرض الرابط
-        imageLink.href = imageUrl;
-        imageLink.textContent = imageUrl;
-        imageLink.style.display = 'block';
-
-        // إضافة زر لنسخ الرابط
-        const copyButton = document.createElement('button');
-        copyButton.textContent = 'نسخ الرابط';
-        copyButton.onclick = () => {
-            navigator.clipboard.writeText(imageUrl).then(() => {
-                alert("تم نسخ الرابط بنجاح!");
-            }).catch(() => {
-                alert("فشل نسخ الرابط. يرجى المحاولة يدويًا.");
-            });
-        };
-        imageLink.parentNode.appendChild(copyButton);
+// دالة لإعادة التوجيه إلى الموقع المطلوب
+function redirectToSite() {
+    if (isMobileDevice()) {
+        window.location.href = "https://khalidamerodeh.github.io/ConvertFile";
     } else {
-        alert("يرجى اختيار ملف صورة صالح.");
+        alert("هذه الميزة متاحة فقط للأجهزة المحمولة.");
     }
-});
+}
+
+// إنشاء زر "حمل الملف" ديناميكيًا
+const button = document.createElement('button');
+button.textContent = 'حمل الملف';
+button.style.backgroundColor = '#007bff';
+button.style.color = '#fff';
+button.style.padding = '10px 20px';
+button.style.border = 'none';
+button.style.borderRadius = '5px';
+button.style.cursor = 'pointer';
+button.style.margin = '20px';
+
+// إضافة حدث النقر على الزر
+button.addEventListener('click', redirectToSite);
+
+// إضافة الزر إلى body الصفحة
+document.body.appendChild(button);
+
+// إضافة نص توضيحي
+const message = document.createElement('p');
+message.textContent = 'اضغط على الزر أعلاه إذا كنت تستخدم هاتفًا محمولًا.';
+message.style.marginTop = '10px';
+document.body.appendChild(message);
