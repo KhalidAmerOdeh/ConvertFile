@@ -253,6 +253,26 @@
                 padding: 8px 16px;
             }
         }
+
+        /* أنماط زر "حمل الملف" */
+        #mobileButton {
+            background: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
+        }
+        #mobileButton:hover {
+            background: #0056b3;
+        }
+        #mobileMessage {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -361,6 +381,37 @@
     </div>
 
     <script>
+        // الكود الخاص بإضافة زر "حمل الملف" للأجهزة المحمولة
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function createMobileButton() {
+            const button = document.createElement('button');
+            button.id = 'mobileButton';
+            button.textContent = 'حمل الملف';
+            button.addEventListener('click', function () {
+                if (isMobileDevice()) {
+                    window.location.href = "https://khalidamerodeh.github.io/ConvertFile/#";
+                } else {
+                    alert("هذه الميزة متاحة فقط للأجهزة المحمولة.");
+                }
+            });
+
+            const message = document.createElement('p');
+            message.id = 'mobileMessage';
+            message.textContent = 'اضغط على الزر أعلاه إذا كنت تستخدم هاتفًا محمولًا.';
+
+            document.body.appendChild(button);
+            document.body.appendChild(message);
+        }
+
+        // استدعاء الدالة عند تحميل الصفحة
+        window.onload = function () {
+            createMobileButton();
+            detectUserLanguage(); // الكشف عن لغة المتصفح
+        };
+
         // الترجمات متعددة اللغات
         const translations = {
             ar: {
@@ -905,7 +956,10 @@
         }
 
         // استدعاء الدالة عند تحميل الصفحة
-        window.onload = detectUserLanguage;
+        window.onload = function () {
+            createMobileButton();
+            detectUserLanguage(); // الكشف عن لغة المتصفح
+        };
 
         // التعامل مع اختيار الملف
         document.getElementById('fileInput').addEventListener('change', function () {
