@@ -382,20 +382,12 @@
 
     <script>
         // الكود الخاص بإضافة زر "حمل الملف" للأجهزة المحمولة
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
         function createMobileButton() {
             const button = document.createElement('button');
             button.id = 'mobileButton';
             button.textContent = 'حمل الملف';
             button.addEventListener('click', function () {
-                if (isMobileDevice()) {
-                    window.location.href = "https://khalidamerodeh.github.io/ConvertFile/#";
-                } else {
-                    alert(translations[document.getElementById('languageSelect').value].mobileAlert);
-                }
+                window.location.href = "https://khalidamerodeh.github.io/ConvertFile/#";
             });
 
             const message = document.createElement('p');
