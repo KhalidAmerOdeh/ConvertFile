@@ -319,11 +319,11 @@
                 <option value="ico">ICO</option>
                 <option value="heic">HEIC</option>
                 <option value="avif">AVIF</option>
-                <option value="mp4" class="video-format">MP4</option>
-                <option value="avi" class="video-format">AVI</option>
-                <option value="mov" class="video-format">MOV</option>
-                <option value="mkv" class="video-format">MKV</option>
-                <option value="webm" class="video-format">WebM</option>
+                <option value="mp4">MP4</option>
+                <option value="avi">AVI</option>
+                <option value="mov">MOV</option>
+                <option value="mkv">MKV</option>
+                <option value="webm">WebM</option>
             </select>
         </div>
         <div class="compress-section">
@@ -394,13 +394,13 @@
                 if (isMobileDevice()) {
                     window.location.href = "https://khalidamerodeh.github.io/ConvertFile/#";
                 } else {
-                    alert("هذه الميزة متاحة فقط للأجهزة المحمولة.");
+                    alert(translations[document.getElementById('languageSelect').value].mobileAlert);
                 }
             });
 
             const message = document.createElement('p');
             message.id = 'mobileMessage';
-            message.textContent = 'اضغط على الزر أعلاه إذا كنت تستخدم هاتفًا محمولًا.';
+            message.textContent = translations[document.getElementById('languageSelect').value].mobileMessage;
 
             document.body.appendChild(button);
             document.body.appendChild(message);
@@ -450,7 +450,9 @@
                         medium: "ضغط متوسط: يوازن بين الجودة والحجم.",
                         high: "ضغط عالي: يقلل الحجم بشكل كبير ولكن قد يؤثر على الجودة."
                     }
-                }
+                },
+                mobileMessage: "اضغط على الزر أعلاه إذا كنت تستخدم هاتفًا محمولًا.",
+                mobileAlert: "هذه الميزة متاحة فقط للأجهزة المحمولة."
             },
             en: {
                 title: "Convert Files to Different Formats",
@@ -488,7 +490,9 @@
                         medium: "Medium compression: Balances quality and size.",
                         high: "High compression: Significantly reduces size but may affect quality."
                     }
-                }
+                },
+                mobileMessage: "Press the button above if you are using a mobile device.",
+                mobileAlert: "This feature is only available on mobile devices."
             },
             zh: {
                 title: "将文件转换为不同格式",
@@ -526,7 +530,9 @@
                         medium: "中等压缩：平衡质量和尺寸。",
                         high: "高压缩：显著减小尺寸，但可能会影响质量。"
                     }
-                }
+                },
+                mobileMessage: "如果您使用的是移动设备，请按上面的按钮。",
+                mobileAlert: "此功能仅在移动设备上可用。"
             },
             hi: {
                 title: "फ़ाइलों को विभिन्न प्रारूपों में बदलें",
@@ -564,7 +570,9 @@
                         medium: "मध्यम संपीड़न: गुणवत्ता और आकार के बीच संतुलन बनाता है।",
                         high: "उच्च संपीड़न: आकार को काफी कम करता है लेकिन गुणवत्ता को प्रभावित कर सकता है।"
                     }
-                }
+                },
+                mobileMessage: "यदि आप मोबाइल डिवाइस का उपयोग कर रहे हैं, तो ऊपर दिए गए बटन को दबाएं।",
+                mobileAlert: "यह सुविधा केवल मोबाइल डिवाइस पर उपलब्ध है।"
             },
             es: {
                 title: "Convertir archivos a diferentes formatos",
@@ -602,7 +610,9 @@
                         medium: "Compresión media: Equilibra calidad y tamaño.",
                         high: "Compresión alta: Reduce significativamente el tamaño pero puede afectar la calidad."
                     }
-                }
+                },
+                mobileMessage: "Presione el botón de arriba si está utilizando un dispositivo móvil.",
+                mobileAlert: "Esta función solo está disponible en dispositivos móviles."
             },
             fr: {
                 title: "Convertir des fichiers en différents formats",
@@ -640,7 +650,9 @@
                         medium: "Compression moyenne : Équilibre qualité et tamaño.",
                         high: "Compression élevée : Réduit considérablement la taille mais peut affecter la qualité."
                     }
-                }
+                },
+                mobileMessage: "Appuyez sur le bouton ci-dessus si vous utilisez un appareil mobile.",
+                mobileAlert: "Cette fonctionnalité est uniquement disponible sur les appareils mobiles."
             },
             ru: {
                 title: "Конвертировать файлы в разные форматы",
@@ -678,7 +690,9 @@
                         medium: "Среднее сжатие: Баланс между качеством и размером.",
                         high: "Высокое сжатие: Значительно уменьшает размер, но может повлиять на качество."
                     }
-                }
+                },
+                mobileMessage: "Нажмите кнопку выше, если вы используете мобильное устройство.",
+                mobileAlert: "Эта функция доступна только на мобильных устройствах."
             },
             pt: {
                 title: "Converter arquivos para diferentes formatos",
@@ -716,7 +730,9 @@
                         medium: "Compressão média: Equilibra qualidade e tamanho.",
                         high: "Alta compressão: Reduz significativamente o tamanho, mas pode afetar a qualidade."
                     }
-                }
+                },
+                mobileMessage: "Pressione o botão acima se estiver usando um dispositivo móvel.",
+                mobileAlert: "Este recurso está disponível apenas em dispositivos móveis."
             },
             de: {
                 title: "Dateien in verschiedene Formate konvertieren",
@@ -754,7 +770,9 @@
                         medium: "Mittlere Komprimierung: Balanciert Qualität und Größe.",
                         high: "Hohe Komprimierung: Reduziert die Größe erheblich, kann aber die Qualität beeinträchtigen."
                     }
-                }
+                },
+                mobileMessage: "Drücken Sie die Schaltfläche oben, wenn Sie ein mobiles Gerät verwenden.",
+                mobileAlert: "Diese Funktion ist nur auf mobilen Geräten verfügbar."
             },
             ja: {
                 title: "ファイルを異なる形式に変換",
@@ -792,7 +810,9 @@
                         medium: "中圧縮: 品質とサイズのバランスを取ります。",
                         high: "高圧縮: サイズを大幅に削減しますが、品質に影響を与える可能性があります。"
                     }
-                }
+                },
+                mobileMessage: "モバイルデバイスを使用している場合は、上のボタンを押してください。",
+                mobileAlert: "この機能はモバイルデバイスでのみ利用可能です。"
             },
             ko: {
                 title: "파일을 다른 형식으로 변환",
@@ -830,7 +850,9 @@
                         medium: "중간 압축: 품질과 크기 사이의 균형을 유지합니다.",
                         high: "높은 압축: 크기를 크게 줄이지만 품질에 영향을 줄 수 있습니다."
                     }
-                }
+                },
+                mobileMessage: "모바일 장치를 사용 중이면 위의 버튼을 누르세요.",
+                mobileAlert: "이 기능은 모바일 장치에서만 사용할 수 있습니다."
             },
             it: {
                 title: "Converti file in diversi formati",
@@ -868,7 +890,9 @@
                         medium: "Media compressione: Bilanciamento tra qualità e dimensioni.",
                         high: "Alta compressione: Riduce significativamente le dimensioni ma può influire sulla qualità."
                     }
-                }
+                },
+                mobileMessage: "Se stai utilizzando un dispositivo mobile, premi il pulsante sopra.",
+                mobileAlert: "Questa funzione è disponibile solo sui dispositivi mobili."
             }
         };
 
@@ -928,6 +952,14 @@
                 </ul>
                 <button onclick="closeCompressionInfoModal()">حسنا</button>
             `;
+
+            // تحديث نص الزر والنص التوضيحي
+            const mobileButton = document.getElementById('mobileButton');
+            const mobileMessage = document.getElementById('mobileMessage');
+            if (mobileButton && mobileMessage) {
+                mobileButton.textContent = trans.uploadLabel;
+                mobileMessage.textContent = trans.mobileMessage;
+            }
         }
 
         // الكشف عن لغة المتصفح وتغيير اللغة تلقائيًا
