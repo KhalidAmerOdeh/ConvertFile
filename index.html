@@ -387,7 +387,12 @@
             button.id = 'mobileButton';
             button.textContent = 'حمل الملف';
             button.addEventListener('click', function () {
-                window.location.href = "https://khalidamerodeh.github.io/ConvertFile/#";
+                // فتح الموقع في نافذة جديدة
+                window.open("https://khalidamerodeh.github.io/ConvertFile/", "_blank");
+                // إغلاق التطبيق الحالي (إذا كان في نافذة منفصلة)
+                if (window.opener) {
+                    window.close();
+                }
             });
 
             const message = document.createElement('p');
@@ -559,7 +564,7 @@
                     description: "संपीड़न स्वीकार्य गुणवत्ता बनाए रखते हुए फ़ाइल आकार को कम करने की प्रक्रिया है। संपीड़न भंडारण स्थान बचाने और लोडिंग गति में सुधार करने में मदद करता है।",
                     effects: {
                         low: "कम संपीड़न: आकार में मामूली कमी के साथ उच्च गुणवत्ता बनाए रखता है।",
-                        medium: "मध्यम संपीड़न: गुणवत्ता और आकार के बीच संतुलन बनाता है।",
+                        medium: "मध्यम संपीड़न: गुणवत्ता और आकार के बीच संतुलन बनाता है。",
                         high: "उच्च संपीड़न: आकार को काफी कम करता है लेकिन गुणवत्ता को प्रभावित कर सकता है।"
                     }
                 },
@@ -617,11 +622,11 @@
                 privacyLink: "Politique de confidentialité",
                 contactLink: "Contact",
                 privacyTitle: "Politique de confidentialité",
-                privacyText: "Nous respectons votre vie privée. Nous ne stockons ni ne partageons aucune donnée personnelle. Même si vous autorisez l'accès à la galerie de fichiers, nous ne collectons ni ne stockons aucune information.",
+                privacyText: "Nous respectons votre vie privée. Nous ne stockons ni ne partageons aucune donnée personnelle. Même si vous autorisez l'accès à la galería de fichiers, nous ne collectons ni ne stockons aucune information.",
                 contactTitle: "Contact",
                 contactText: "Vous pouvez nous contacter par e-mail : <a href='mailto:khalid.amer.odeh1@gmail.com' style='color: #F4A900;'>khalid.amer.odeh1@gmail.com</a>",
                 uploadSuccess: "Fichier téléchargé avec succès !",
-                permissionText: "Autoriser l'accès à la galerie de fichiers ?",
+                permissionText: "Autoriser l'accès à la galería de fichiers ?",
                 permissionDescription: "L'application sera autorisée à accéder à la galerie photo pour sélectionner un fichier.",
                 allowBtn: "Autoriser",
                 denyBtn: "Refuser",
@@ -723,8 +728,8 @@
                         high: "Alta compressão: Reduz significativamente o tamanho, mas pode afetar a qualidade."
                     }
                 },
-                mobileMessage: "Pressione o botão acima se estiver usando um dispositivo móvel.",
-                mobileAlert: "Este recurso está disponível apenas em dispositivos móveis."
+                mobileMessage: "Pressione o botão acima if you are using a mobile device.",
+                mobileAlert: "This feature is only available on mobile devices."
             },
             de: {
                 title: "Dateien in verschiedene Formate konvertieren",
