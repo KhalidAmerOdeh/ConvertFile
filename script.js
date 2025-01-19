@@ -3,10 +3,19 @@ function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// دالة لإعادة التوجيه إلى الموقع المطلوب
-function redirectToSite() {
+// دالة لفتح الموقع داخل iframe
+function openSiteInIframe() {
     if (isMobileDevice()) {
-        window.location.href = "https://khalidamerodeh.github.io/ConvertFile";
+        // إنشاء iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = "https://khalidamerodeh.github.io/ConvertFile";
+        iframe.style.width = "100%";
+        iframe.style.height = "100vh"; // ارتفاع كامل للشاشة
+        iframe.style.border = "none";
+
+        // إضافة iframe إلى body
+        document.body.innerHTML = ''; // مسح محتوى الصفحة الحالي
+        document.body.appendChild(iframe);
     } else {
         alert("هذه الميزة متاحة فقط للأجهزة المحمولة.");
     }
@@ -24,7 +33,7 @@ button.style.cursor = 'pointer';
 button.style.margin = '20px';
 
 // إضافة حدث النقر على الزر
-button.addEventListener('click', redirectToSite);
+button.addEventListener('click', openSiteInIframe);
 
 // إضافة الزر إلى body الصفحة
 document.body.appendChild(button);
